@@ -1,9 +1,6 @@
 package com.prueba.trv.service;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.MacAlgorithm;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -13,8 +10,9 @@ import org.springframework.stereotype.Service;
 import com.prueba.trv.entity.User;
 import com.prueba.trv.repository.UserRepository;
 
-import java.security.Key;
 import java.util.Date;
+
+import javax.crypto.SecretKey;
 
 @Service
 public class AuthService {
@@ -25,7 +23,8 @@ public class AuthService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder; // Para verificar las contraseñas
 
-    private static final String SECRET_KEY = "my_secret_key"; // Clave secreta para JWT (debes cambiarla en producción)
+    @Autowired
+    private KeyGeneratorService keyGeneratorService;  // Inyección del servicio de generación de clave
 
     public String login(String email, String password) {
         // Buscar al usuario por su email
@@ -49,15 +48,16 @@ public class AuthService {
 
         // Convertir ObjectId a String
         String userId = user.getId().toHexString();
-        Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+
+        // Obtener la clave generada a través del servicio
+        SecretKey key = keyGeneratorService.getKey();
 
         // Crear el token
         return Jwts.builder()
             .subject(userId)  // Usando el nuevo método 'subject'
             .issuedAt(new Date())  // Fecha de emisión
             .expiration(new Date(System.currentTimeMillis() + expirationTime))   // Fecha de expiración
-            .signWith(key)  // Firma con la clave secreta
+            .signWith(key)  // Firma con la clave secreta inyectada
             .compact();
     }
 }
-

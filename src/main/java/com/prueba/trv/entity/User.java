@@ -46,5 +46,9 @@ public class User {
     private int type;
     @NotNull
     private boolean state;
+    public static Object builder() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'builder'");
+    }
 
 }
