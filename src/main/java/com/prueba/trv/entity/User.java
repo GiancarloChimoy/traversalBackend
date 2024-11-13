@@ -1,12 +1,9 @@
 package com.prueba.trv.entity;
 
-import java.time.LocalDateTime;
-
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
@@ -40,7 +37,14 @@ public class User {
     private String phone;
     @Email
     private String email;
+    @NotBlank
+    @Email
+    private String password;
     @NotNull
-    private boolean type;
+    @Min(1)
+    @Max(2)
+    private int type;
+    @NotNull
+    private boolean state;
 
 }
