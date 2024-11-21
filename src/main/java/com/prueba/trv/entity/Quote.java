@@ -8,6 +8,8 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -25,6 +27,7 @@ import lombok.Setter;
 @Document(collection = "quote")
 public class Quote {
     @Id
+    @JsonProperty("id")
     private ObjectId id;
     @NotBlank
     @Indexed(unique = true)
@@ -45,4 +48,8 @@ public class Quote {
     @NotNull
     @Field("date")
     private LocalDateTime date;
+
+    public String getId() {
+        return id.toHexString();  // Convierte el ObjectId a su representación en cadena
+    }
 }

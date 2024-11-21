@@ -34,8 +34,10 @@ public class User {
     @Indexed(unique = true)
     private String dni;
     @NotBlank
+    @Indexed(unique = true)
     private String phone;
     @Email
+    @Indexed(unique = true)
     private String email;
     @NotBlank
     @Email

@@ -30,16 +30,16 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/product/")
 @CrossOrigin(origins = "http://localhost:3000")
 public class ProductController {
-    
-    @Autowired
+
+	@Autowired
 	private ProductService service;
 
-    @GetMapping
+	@GetMapping
 	public ResponseEntity<List<Product>> findAll(
 			@RequestParam(value = "name", required = false, defaultValue = "") String name,
 			@RequestParam(value = "offset", required = false, defaultValue = "0") int pageNumber,
 			@RequestParam(value = "limit", required = false, defaultValue = "100") int pageSize) {
-		
+
 		Pageable page = PageRequest.of(pageNumber, pageSize);
 		List<Product> products;
 
@@ -48,14 +48,14 @@ public class ProductController {
 		} else {
 			products = service.findByName(name, page);
 		}
-		
+
 		if (products.isEmpty()) {
 			return ResponseEntity.noContent().build();
 		}
 		return ResponseEntity.ok(products);
 	}
-	
-    @GetMapping("/{id}")
+
+	@GetMapping("/{id}")
 	public ResponseEntity<Product> findById(@PathVariable("id") ObjectId id) {
 		Product registro = service.findById(id);
 		if (registro == null) {
@@ -64,11 +64,11 @@ public class ProductController {
 		return ResponseEntity.ok(registro);
 	}
 
-    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+	@PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
 	public ResponseEntity<Product> create(
-            @RequestPart("product") Product product, 
-            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
-			
+			@RequestPart("product") Product product,
+			@RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
+
 		try {
 			Product registro = service.save(product, imageFile);
 			return ResponseEntity.status(HttpStatus.CREATED).body(registro);
@@ -76,15 +76,15 @@ public class ProductController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
-	
+
 	@PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<Product> update(
-            @PathVariable("id") ObjectId id, 
-            @RequestPart("product") Product product, 
-            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
-		
+	public ResponseEntity<Product> update(
+			@PathVariable("id") ObjectId id,
+			@RequestPart("product") Product product,
+			@RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
+
 		try {
-			product.setId(id);  // Asegúrate de que el ID está configurado en el objeto Product
+			product.setId(id); // Asegúrate de que el ID está configurado en el objeto Product
 			Product registro = service.update(product, imageFile);
 			if (registro == null) {
 				return ResponseEntity.notFound().build();
@@ -95,9 +95,23 @@ public class ProductController {
 		}
 	}
 
+	// Endpoint para buscar un producto por su código (code)
+	@GetMapping("/code/{code}")
+	public ResponseEntity<Product> getProductByCode(@PathVariable String code) {
+		try {
+			// Llamamos al servicio para buscar el producto por código
+			Product product = service.findByCode(code);
+			return ResponseEntity.ok(product); // Si se encuentra, devolvemos el producto
+		} catch (RuntimeException e) {
+			// Si no se encuentra, devolvemos un mensaje de error
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(null); // Aquí puedes retornar un objeto con el mensaje de error si lo prefieres
+		}
+	}
+
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> delete(@PathVariable("id") ObjectId id) {
-	    service.delete(id);
-	    return ResponseEntity.noContent().build();
+		service.delete(id);
+		return ResponseEntity.noContent().build();
 	}
 }

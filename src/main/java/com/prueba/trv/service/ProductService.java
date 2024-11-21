@@ -21,4 +21,6 @@ public interface ProductService {
     Product update(Product product, MultipartFile imageFile) throws IOException;
 
     void delete(ObjectId id);
+
+    Product findByCode(String code);
 }

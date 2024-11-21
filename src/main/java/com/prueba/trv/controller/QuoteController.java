@@ -1,7 +1,9 @@
 package com.prueba.trv.controller;
 
 import java.time.LocalDateTime;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,19 +26,27 @@ import org.springframework.web.bind.annotation.RestController;
 import com.prueba.trv.entity.Quote;
 import com.prueba.trv.service.QuoteService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 @RequestMapping("/quote/")
-@CrossOrigin(origins = "http://localhost:3000")
 public class QuoteController {
 
     @Autowired
     private QuoteService service;
 
+    private static final Logger logger = LoggerFactory.getLogger(QuoteController.class);
+
     @GetMapping
     public ResponseEntity<List<Quote>> findAll(
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @RequestParam(value = "date", required = false) LocalDateTime date,
             @RequestParam(value = "offset", required = false, defaultValue = "0") int pageNumber,
             @RequestParam(value = "limit", required = false, defaultValue = "100") int pageSize) {
+
+        // Imprimir el Authorization Header para loguearlo
+        logger.info("Solicitud GET recibida. Authorization Header: {}", authorizationHeader);
 
         Pageable page = PageRequest.of(pageNumber, pageSize);
         List<Quote> quotes;
@@ -56,7 +67,7 @@ public class QuoteController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Quote> findById(@PathVariable("id") ObjectId id) {
+    public ResponseEntity<Quote> findById(@PathVariable("id") String id) {
         Quote registro = service.findById(id);
         if (registro == null) {
             return ResponseEntity.notFound().build();
@@ -93,32 +104,31 @@ public class QuoteController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") ObjectId id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") String id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/state")
     public ResponseEntity<Quote> updateState(
-            @PathVariable("id") ObjectId id,
-            @RequestParam("state") int state) {
+            @PathVariable("id") String id,
+            @RequestBody Map<String, Integer> requestBody) {
+
+        // Extraer el estado del cuerpo de la solicitud
+        Integer state = requestBody.get("state");
 
         // Verificar si el estado es válido
-        if (state < 1 || state > 4) {
-            return ResponseEntity.badRequest().body(null); // Puedes retornar un error si el estado es inválido
+        if (state == null || state < 1 || state > 4) {
+            return ResponseEntity.badRequest().body(null); // Retornar un error si el estado es inválido
         }
 
-        // Buscar la cotización por su ID
-        Quote existingQuote = service.findById(id);
-        if (existingQuote == null) {
-            return ResponseEntity.notFound().build(); // Si no se encuentra la cotización, retornar 404
+        // Llamar al método del servicio para actualizar el estado
+        Quote updatedQuote = service.updateState(id, state);
+
+        // Verificar si la cotización fue encontrada y actualizada
+        if (updatedQuote == null) {
+            return ResponseEntity.notFound().build(); // Retornar 404 si no se encuentra la cotización
         }
-
-        // Actualizar solo el estado
-        existingQuote.setState(state);
-
-        // Guardar la cotización con el estado actualizado
-        Quote updatedQuote = service.update(existingQuote);
 
         return ResponseEntity.ok(updatedQuote); // Retornar la cotización actualizada
     }

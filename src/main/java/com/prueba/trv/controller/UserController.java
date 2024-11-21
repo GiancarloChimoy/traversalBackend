@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.prueba.trv.entity.Quote;
 import com.prueba.trv.entity.User;
 import com.prueba.trv.service.UserService;
 
@@ -66,6 +68,23 @@ public class UserController {
     public ResponseEntity<User> create(@RequestBody User user) {
         User registro = service.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(registro);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<User> update(
+            @PathVariable("id") ObjectId id,
+            @RequestBody User user) {
+
+        // Aquí puedes establecer el id en el objeto contact si es necesario.
+        user.setId(id);
+
+        // Actualiza la cotización en el servicio
+        User registro = service.update(user);
+
+        if (registro == null) {
+            return ResponseEntity.notFound().build(); // Si no se encuentra el contacto
+        }
+        return ResponseEntity.ok(registro); // Retorna el contacto actualizado
     }
 
 }

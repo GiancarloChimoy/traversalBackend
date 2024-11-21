@@ -6,11 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-
 import com.prueba.trv.entity.User;
 import com.prueba.trv.repository.UserRepository;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.crypto.SecretKey;
 
@@ -18,13 +19,13 @@ import javax.crypto.SecretKey;
 public class AuthService {
 
     @Autowired
-    private UserRepository repository;  // Repositorio para buscar usuarios
+    private UserRepository repository; // Repositorio para buscar usuarios
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder; // Para verificar las contraseñas
 
     @Autowired
-    private KeyGeneratorService keyGeneratorService;  // Inyección del servicio de generación de clave
+    private KeyGeneratorService keyGeneratorService; // Inyección del servicio de generación de clave
 
     public String login(String email, String password) {
         // Buscar al usuario por su email
@@ -52,12 +53,18 @@ public class AuthService {
         // Obtener la clave generada a través del servicio
         SecretKey key = keyGeneratorService.getKey();
 
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("name", user.getName());
+        claims.put("type", user.getType());
+        claims.put("state", user.isState());
+
         // Crear el token
         return Jwts.builder()
-            .subject(userId)  // Usando el nuevo método 'subject'
-            .issuedAt(new Date())  // Fecha de emisión
-            .expiration(new Date(System.currentTimeMillis() + expirationTime))   // Fecha de expiración
-            .signWith(key)  // Firma con la clave secreta inyectada
-            .compact();
+                .claims(claims)
+                .subject(userId) // Usando el nuevo método 'subject'
+                .issuedAt(new Date()) // Fecha de emisión
+                .expiration(new Date(System.currentTimeMillis() + expirationTime)) // Fecha de expiración
+                .signWith(key) // Firma con la clave secreta inyectada
+                .compact();
     }
 }

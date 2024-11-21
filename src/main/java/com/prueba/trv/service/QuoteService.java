@@ -13,14 +13,14 @@ public interface QuoteService {
 
     List<Quote> findByDate(LocalDateTime date, Pageable page);
 
-    Quote findById(ObjectId id);
+    Quote findById(String id);
 
     Quote save(Quote quote);
 
     Quote update(Quote quote);
 
     // Nuevo método para actualizar solo el estado
-    Quote updateState(ObjectId id, int newState);
+    Quote updateState(String id, int newState);
 
-    void delete(ObjectId id);
+    void delete(String id);
 }

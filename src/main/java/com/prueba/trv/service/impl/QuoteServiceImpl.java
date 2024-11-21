@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ public class QuoteServiceImpl implements QuoteService {
     private QuoteRepository repository;
 
     @Override
-    public void delete(ObjectId id) {
+    public void delete(String id) {
         // TODO Auto-generated method stub
         try {
             Quote registro = repository.findById(id)
@@ -56,7 +55,7 @@ public class QuoteServiceImpl implements QuoteService {
 
     @Override
     @Transactional(readOnly = true)
-    public Quote findById(ObjectId id) {
+    public Quote findById(String id) {
         // TODO Auto-generated method stub
         try {
             return repository.findById(id).orElseThrow(() -> new NoSuchElementException("Cotización no encontrado"));
@@ -98,17 +97,16 @@ public class QuoteServiceImpl implements QuoteService {
     }
 
     @Override
-    public Quote updateState(ObjectId id, int newState) {
-        // TODO Auto-generated method stub
-        Quote quote = repository.findById(id).orElse(null);
+    public Quote updateState(String id, int newState) {
+        // Buscar la cotización por su ID
+        Quote registro = repository.findById(id).orElse(null);
 
-        if (quote != null) {
+        if (registro != null) {
             // Actualizar solo el estado
-            quote.setState(newState);
-            return repository.save(quote); // Guardar los cambios en el repositorio
-        } else{
-            return null; // Retornar null si no se encuentra la cotización
+            registro.setState(newState);
+            return repository.save(registro); // Guardar los cambios en el repositorio
         }
+        return null; // Retornar null si no se encuentra la cotización
     }
 
 }

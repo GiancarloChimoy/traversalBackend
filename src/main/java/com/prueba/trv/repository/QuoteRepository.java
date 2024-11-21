@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.prueba.trv.entity.Quote;
 
 @Repository
-public interface QuoteRepository extends MongoRepository<Quote, ObjectId> {
+public interface QuoteRepository extends MongoRepository<Quote, String> {
     List<Quote> findByDateContaining(LocalDateTime date, Pageable page);
+    Quote findByProductCode(String productCode);
 }

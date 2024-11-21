@@ -107,4 +107,11 @@ public class ProductServiceImpl implements ProductService{
         }
     }
 
+    @Override
+    public Product findByCode(String code) {
+        // TODO Auto-generated method stub
+        return repository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Product not found with code: " + code));
+    }
+
 }
