@@ -15,6 +15,8 @@ import java.util.Map;
 
 import javax.crypto.SecretKey;
 
+import javax.crypto.SecretKey;
+
 @Service
 public class AuthService {
 
@@ -25,7 +27,11 @@ public class AuthService {
     private BCryptPasswordEncoder passwordEncoder; // Para verificar las contraseñas
 
     @Autowired
+<<<<<<< HEAD
     private KeyGeneratorService keyGeneratorService; // Inyección del servicio de generación de clave
+=======
+    private KeyGeneratorService keyGeneratorService;  // Inyección del servicio de generación de clave
+>>>>>>> 1284a29a75ca7aeea50ea020345f375f2123dd05
 
     public String login(String email, String password) {
         // Buscar al usuario por su email
@@ -52,6 +58,7 @@ public class AuthService {
 
         // Obtener la clave generada a través del servicio
         SecretKey key = keyGeneratorService.getKey();
+<<<<<<< HEAD
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("name", user.getName());
@@ -66,5 +73,15 @@ public class AuthService {
                 .expiration(new Date(System.currentTimeMillis() + expirationTime)) // Fecha de expiración
                 .signWith(key) // Firma con la clave secreta inyectada
                 .compact();
+=======
+
+        // Crear el token
+        return Jwts.builder()
+            .subject(userId)  // Usando el nuevo método 'subject'
+            .issuedAt(new Date())  // Fecha de emisión
+            .expiration(new Date(System.currentTimeMillis() + expirationTime))   // Fecha de expiración
+            .signWith(key)  // Firma con la clave secreta inyectada
+            .compact();
+>>>>>>> 1284a29a75ca7aeea50ea020345f375f2123dd05
     }
 }
